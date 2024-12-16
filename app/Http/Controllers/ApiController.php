@@ -48,6 +48,22 @@ class ApiController extends Controller
         return response()->json(['message' => 'Logged out successfully'], 200);
     }
 
+
+    public function search(Request $request)
+    {
+        $query = $request->input('q');
+        $category = Category::with('menus')
+            ->where('name', 'LIKE', "%{$query}%")
+            ->orWhereHas('menus', function ($q) use ($query) {
+                $q->where('name', 'LIKE', "%{$query}%");
+            })
+            ->get();
+
+        return response()->json([
+            'category' => $category
+        ], 200);
+    }
+
     public function category()
     {
 

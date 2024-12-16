@@ -9,6 +9,7 @@ Route::post('/login', [ApiController::class, 'login']);
 Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/category', [ApiController::class, 'category']);
+    Route::get('/search', [ApiController::class, 'search']);
     Route::get('/product/{id}', [ApiController::class, 'showproduct']);
     Route::post('/postcart', [ApiController::class, 'postcart'])->name('postcart');
     Route::delete('/cart/{id}/delete', [ApiController::class, 'removecart']);
