@@ -2,10 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Cart;
 use App\Models\Menu;
 use App\Models\CartMenu;
-use App\Models\Discount;
 use App\Models\Size;
 use Illuminate\Http\Request;
 
@@ -41,7 +39,6 @@ class CartController extends Controller
             return back()->withErrors(['stock' => 'Insufficient stock for this size.']);
         }
 
-        // Check for existing CartMenu entry with the same menu, size, and notes.
         $existingCartMenu = CartMenu::where('cart_id', $cart->id)
             ->where('menu_id', $menu->id)
             ->where('size_id', $size->id)
@@ -63,7 +60,6 @@ class CartController extends Controller
             ]);
         }
 
-        // Update the total amount in the cart
         $cart->update(['total_amount' => $cart->total_amount + $subtotal]);
 
         return redirect(route('addorder'));

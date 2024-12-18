@@ -29,6 +29,7 @@
                             <thead class="w-full">
                                 <th>No</th>
                                 <th>Date</th>
+                                <th>SKU</th>
                                 <th>Product</th>
                                 <th>Size</th>
                                 <th>Qty</th>
@@ -42,6 +43,7 @@
                                     <tr class="border-2">
                                         <td>{{ $no++ }}</td>
                                         <td>{{ $item->created_at ?? 'N/A' }}</td>
+                                        <td>{{ $item->menu->sku ?? 'N/A' }}</td>
                                         <td>{{ $item->menu->name ?? 'N/A' }}</td>
                                         <td>{{ $item->size ?? 'N/A' }}</td>
                                         <td>{{ $item->stock ?? 'N/A' }}</td>

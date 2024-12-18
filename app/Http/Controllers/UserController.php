@@ -15,7 +15,7 @@ class UserController extends Controller
     public function index()
     {
         $users = User::where('level', 'Cashier')->get();
-        
+
         return view('user', compact('users'));
     }
 

@@ -10,11 +10,11 @@ class CategoryController extends Controller
 {
     public function index()
     {
-        $category = Cache::remember('categories', now()->addMinutes(60), function () {
+        $categories = Cache::remember('categories', now()->addMinutes(60), function () {
             return Category::all();
         });
 
-        return view('category', compact('category'));
+        return view('category', compact('categories'));
     }
 
     public function create()
@@ -30,18 +30,14 @@ class CategoryController extends Controller
 
         Category::create($data);
 
-        Cache::forget('categories');
-
-        Cache::remember('categories', now()->addMinutes(60), function () {
-            return Category::all();
-        });
+        Cache::put('categories', Category::all(), now()->addMinutes(60));
 
         return redirect(route('category'))->with('success', 'Category successfully created!');
     }
 
     public function edit($id)
     {
-        $category = Category::find($id);
+        $category = Category::findOrFail($id);
         
         return view('editcategory', compact('category'));
     }
@@ -52,14 +48,10 @@ class CategoryController extends Controller
             'name' => 'required',
         ]);
 
-        $data = $request->only(['name']);
-        Category::where('id', $id)->update($data);
+        $category = Category::findOrFail($id);
+        $category->update($request->only(['name']));
 
-        Cache::forget('categories');
-
-        Cache::remember('categories', now()->addMinutes(60), function () {
-            return Category::all();
-        });
+        Cache::put('categories', Category::all(), now()->addMinutes(60));
 
         return redirect(route('category'))->with('success', 'Category successfully updated!');
     }
@@ -68,7 +60,7 @@ class CategoryController extends Controller
     {
         Category::destroy($id);
 
-        Cache::forget('categories');
+        Cache::put('categories', Category::all(), now()->addMinutes(60));
 
         return redirect(route('category'))->with('success', 'Category successfully deleted!');
     }

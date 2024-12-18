@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Cart;
 use App\Models\Menu;
 use App\Models\Size;
 use App\Models\Order;
@@ -268,10 +269,8 @@ class ApiController extends Controller
         $billing_address = [
             'first_name' => $request->atas_nama,
             'last_name' => '',
-            'address' => $request->alamat ?? 'N/A',
             'city' => 'N/A',
             'postal_code' => 'N/A',
-            'phone' => $request->no_telpon,
             'country_code' => 'IDN',
         ];
 
@@ -280,8 +279,6 @@ class ApiController extends Controller
         $customer_details = [
             'first_name' => $request->atas_nama,
             'last_name' => '',
-            'email' => $user->email,
-            'phone' => $request->no_telpon,
             'billing_address' => $billing_address,
             'shipping_address' => $shipping_address,
         ];
@@ -309,6 +306,27 @@ class ApiController extends Controller
             'snapToken' => $snapToken,
             'order' => $order,
         ], 200);
-        // return view('checkout', compact('snapToken', 'order'));
+    }
+
+    public function cashpayment(Request $request)
+    {
+        $orderId = $request->input('order_id');
+        $order = Order::find($orderId);
+
+        if ($order) {
+            $order->status = 'settlement';
+            $order->payment_type = 'cash';
+            $order->save();
+
+            $newCart = new Cart();
+            $newCart->user_id = $order->cart->user_id;
+            $newCart->save();
+
+        }
+
+        return response()->json([
+            'order' => $order,
+        ], 200);
+        // return redirect()->route('order')->with('error', 'Cash payment failed!');
     }
 }
