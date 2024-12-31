@@ -16,9 +16,9 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->onUpdate('cascade')->onDelete('cascade');
             $table->timestamp('start_time')->nullable();
             $table->timestamp('end_time')->nullable();
-            $table->decimal('start_amount', 10, 2)->nullable(); 
-            $table->decimal('total_amount', 10, 2)->nullable(); 
-            $table->decimal('expected', 10, 2)->nullable(); 
+            $table->integer('start_amount')->nullable(); 
+            $table->integer('total_amount')->nullable(); 
+            $table->integer('expected')->nullable(); 
             $table->timestamps();
         });
     }

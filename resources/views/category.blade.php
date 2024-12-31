@@ -38,7 +38,7 @@
                                 @php
                                     $no = 1;
                                 @endphp
-                                @foreach ($category as $item)
+                                @foreach ($categories as $item)
                                     <tr class="border-2">
                                         <td>{{ $no++ }}</td>
                                         <td>{{ $item->created_at }}</td>

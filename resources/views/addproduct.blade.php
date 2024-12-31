@@ -38,6 +38,7 @@
                                 <input type="number"
                                     class="bg-gray-50 border border-gray-300 text-gray-900 p-2 rounded-lg w-full"
                                     id="price" name="price" placeholder="Harga produk" required>
+                                <p id="priceOutput">Rp.</p>
                             </div>
                             <div class="space-y-2">
                                 <label class="font-semibold text-black">Kategori:</label>
@@ -74,17 +75,32 @@
         document.getElementById('description').addEventListener('input', function() {
             var maxLength = 200;
             var currentLength = this.value.length;
-    
+
             document.getElementById('charCount').innerText = currentLength + '/' + maxLength;
-    
+
             if (currentLength >= maxLength) {
                 this.setAttribute('disabled', true);
             } else {
                 this.removeAttribute('disabled');
             }
         });
-    </script>    
+
+        const priceInput = document.getElementById('price');
+        const priceOutput = document.getElementById('priceOutput');
+
+        function formatToIDR(value) {
+            if (!value) return 'Rp. 0';
+            return 'Rp. ' + parseInt(value.replace(/[^\d]/g, '')).toLocaleString('id-ID');
+        }
+
+        priceInput.addEventListener('input', () => {
+            const formattedPrice = formatToIDR(priceInput.value);
+            priceOutput.textContent = formattedPrice;
+        });
+    </script>
+
     @include('layout.script')
 
 </body>
+
 </html>

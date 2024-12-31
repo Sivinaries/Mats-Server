@@ -39,6 +39,7 @@ class CartController extends Controller
             return back()->withErrors(['stock' => 'Insufficient stock for this size.']);
         }
 
+        
         $existingCartMenu = CartMenu::where('cart_id', $cart->id)
             ->where('menu_id', $menu->id)
             ->where('size_id', $size->id)
@@ -73,8 +74,6 @@ class CartController extends Controller
         $cartMenu = CartMenu::findOrFail($id);
 
         $subtotal = $cartMenu->subtotal;
-
-        $discountId = $cartMenu->discount_id;
 
         $cartMenu->delete();
 

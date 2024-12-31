@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('menus', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->decimal('price', 15, 2);
+            $table->integer('price');
             $table->string('img')->nullable();
             $table->string('description');
             $table->string('sku');

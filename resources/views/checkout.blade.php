@@ -28,12 +28,6 @@
                             class="bg-gray-50 border border-gray-300 text-gray-900 p-2 rounded-lg w-full"
                             value="{{ $order->atas_nama }}" readonly>
                     </div>
-                    <div class="space-y-2">
-                        <label class="font-semibold text-black text-lg">No Telpon:</label>
-                        <input type="text"
-                            class="bg-gray-50 border border-gray-300 text-gray-900 p-2 rounded-lg w-full"
-                            value="{{ $order->no_telpon }}" readonly>
-                    </div>
                     <div class="grid grid-cols-2 gap-2 p-3">
                         @foreach ($order->cart->cartMenus as $menu)
                             <div class=''>
@@ -89,31 +83,45 @@
             window.history.pushState(null, null, window.location.href);
         };
 
-        var payButton = document.getElementById('pay-button');
-        payButton.addEventListener('click', function(event) {
+        document.getElementById('pay-button').addEventListener('click', function(event) {
             event.preventDefault();
-            @if (isset($snapToken))
-                window.snap.pay('{{ $snapToken }}', {
-                    onSuccess: function(result) {
-                        console.log('Payment successful!', result);
-                        window.location.href = '{{ route('order') }}'; // Redirect to dashboard
+
+            fetch('{{ route('onlinepayment') }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
                     },
-                    onPending: function(result) {
-                        console.log('Payment pending', result);
-                        window.location.href = '{{ route('order') }}'; // Redirect to dashboard
-                    },
-                    onError: function(result) {
-                        console.error('Payment failed', result);
-                        window.location.href = '{{ route('order') }}'; // Redirect to dashboard
-                    },
-                    onClose: function() {
-                        console.log('Payment popup closed');
-                        window.location.href = '{{ route('order') }}'; // Redirect to dashboard
+                    body: JSON.stringify({
+                        order_id: '{{ $order->id }}',
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.snapToken) {
+                        window.snap.pay(data.snapToken, {
+                            onSuccess: function(result) {
+                                console.log('Payment successful!', result);
+                                window.location.href = '{{ route('order') }}';
+                            },
+                            onPending: function(result) {
+                                console.log('Payment pending', result);
+                                window.location.href = '{{ route('order') }}';
+                            },
+                            onError: function(result) {
+                                console.error('Payment failed', result);
+                                window.location.href = '{{ route('order') }}';
+                            },
+                            onClose: function() {
+                                console.log('Payment popup closed');
+                                window.location.href = '{{ route('order') }}';
+                            }
+                        });
+                    } else {
+                        console.error('Failed to retrieve Snap Token');
                     }
-                });
-            @else
-                console.error('Snap token is not set!');
-            @endif
+                })
+                .catch(error => console.error('Error:', error));
         });
 
         // Handle cash input change and calculate change
@@ -131,7 +139,7 @@
             return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
         }
     </script>
-        @include('layout.script')
+    @include('layout.script')
 
 </body>
 

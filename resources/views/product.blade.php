@@ -79,9 +79,9 @@
                                             <button type="submit">Delete</button>
                                         </form>
                                     </div>
-                                    <div class="bg-gray-100 p-2 rounded-xl">
-                                        <img src="{{ asset('storage/' . $menu->qr_code) }}"
-                                            alt="QR Code for {{ $menu->name }}" class="mx-auto w-20 h-20" />
+                                    <div class="w-full p-2 bg-yellow-500 rounded-xl text-center">
+                                        <a class="text-white hover:text-black text-center"
+                                            href="{{ route('showqr', ['id' => $menu->id]) }}">Barcode</a>
                                     </div>
                                 </div>
                             </div>

@@ -7,11 +7,9 @@ use App\Models\User;
 use App\Models\Order;
 use App\Models\Histoy;
 use App\Models\Expense;
-use App\Models\Discount;
 use App\Models\Settlement;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Http;
 
 class Pagescontroller extends Controller
 {
@@ -96,4 +94,21 @@ class Pagescontroller extends Controller
             'selectedDate' => $selectedDate
         ]);
     }
+
+    public function search(Request $request)
+    {
+
+        $query = $request->input('search');
+
+        //ORDER SEARCH
+        $orderResults = Order::where('atas_nama', 'LIKE', '%' . $query . '%')
+            ->get();
+
+        //HISTORY SEARCH
+        $historyResults = Histoy::where('name', 'LIKE', '%' . $query . '%')
+            ->get();
+
+        return view('search', compact('orderResults', 'historyResults'));
+    }
+
 }

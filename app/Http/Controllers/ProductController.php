@@ -3,10 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Menu;
-use App\Models\Size;
 use App\Models\CartMenu;
 use App\Models\Category;
-use App\Models\Discount;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
@@ -46,7 +44,7 @@ class ProductController extends Controller
             $data['img'] = 'img/' . $imageName;
         }
 
-        $sku = 'SKU-' . strtoupper(uniqid()); // You can change this logic as needed
+        $sku = 'SKU-' . strtoupper(uniqid());
         $data['sku'] = $sku;
 
         $menu = Menu::create($data);
@@ -58,9 +56,9 @@ class ProductController extends Controller
 
         $menu->update($data);
 
-        Cache::forget('menus');
-        Cache::forget('categories');
-        Cache::forget('categories_with_menus');
+        Cache::put('menus', Menu::all(), now()->addMinutes(60));
+
+        Cache::put('categories_with_menus', Category::with('menus')->get(), now()->addMinutes(60));
 
         return redirect(route('product'))->with('success', 'Product Sukses Dibuat!');
     }
@@ -70,7 +68,7 @@ class ProductController extends Controller
         $menu = Cache::remember("menu_{$id}", now()->addMinutes(60), function () use ($id) {
             return Menu::with('sizes')->find($id);
         });
-        
+
         return view('showproduct', compact('menu'));
     }
 
@@ -104,32 +102,20 @@ class ProductController extends Controller
 
         Menu::where('id', $id)->update($menuData);
 
-        // Clear the old cache
-        Cache::forget('menus');
-        Cache::remember('menus', now()->addMinutes(60), function () {
-            return Menu::all();
-        });
+        Cache::put('menus', Menu::all(), now()->addMinutes(60));
 
-        Cache::forget('categories');
-        Cache::remember('categories', now()->addMinutes(60), function () {
-            return Category::all();
-        });
+        Cache::put('categories_with_menus', Category::with('menus')->get(), now()->addMinutes(60));
 
-        // Clear and re-cache categories with menus
-        Cache::forget('categories_with_menus');
-        Cache::remember('categories_with_menus', now()->addMinutes(60), function () {
-            return Category::with(['menus'])->get();
-        });
         return redirect(route('product'))->with('success', 'Product Sukses Diupdate !');
     }
 
     public function destroy($id)
     {
         CartMenu::where('menu_id', $id)->delete();
+        
         Menu::destroy($id);
 
         Cache::forget('menus');
-        Cache::forget('categories');
 
         return redirect(route('product'))->with('success', 'Product Berhasil Dihapus !');
     }

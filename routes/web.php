@@ -28,9 +28,11 @@ Route::middleware('auth:sanctum')->group(function () {
 
     //PAGES CONTROLLER
     Route::get('/dashboard', [Pagescontroller::class, 'dashboard'])->name('dashboard');
+    Route::get('/search', [Pagescontroller::class, 'search'])->name('search');
 
     //QR CONTROLLER
     Route::get('/scanner', [QrController::class, 'index'])->name('scanner');
+    Route::get('/product/{id}/qr', [QrController::class, 'show'])->name('showqr');
 
     //USER CONTROLLER
     Route::get('/users', [UserController::class, 'index'])->name('user');
@@ -43,8 +45,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/createorder', [OrderController::class, 'create'])->name('addorder');
     Route::post('/postorder', [OrderController::class, 'store'])->name('postorder');
     Route::delete('/order/{id}/delete', [OrderController::class, 'destroy'])->name('delorder');
-    Route::post('/order/{orderId}/archive', [OrderController::class, 'archive'])->name('archive');
+    Route::post('/order/{id}/archive', [OrderController::class, 'archive'])->name('archive');
     Route::post('/cashpayment', [OrderController::class, 'cashpayment'])->name('cashpayment');
+    Route::post('/onlinepayment', [OrderController::class, 'onlinepayment'])->name('onlinepayment');
 
     //MENU CONTROLLER
     Route::get('/product', [ProductController::class, 'index'])->name('product');

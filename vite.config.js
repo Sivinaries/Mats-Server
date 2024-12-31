@@ -9,6 +9,6 @@ export default defineConfig({
         }),
     ],
     server: {
-        host: '192.168.18.114', // Allow external access
+        host: '192.168.1.99', // Allow external access
     },
 });

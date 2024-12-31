@@ -64,14 +64,9 @@
                                             <select name="size_id" class='border p-2 w-full bg-gray-50 rounded-xl' required>
                                                 <option value="">Size</option>
                                                 @foreach ($menu->sizes as $size)
-                                                    <option value="{{ $size->id }}">{{ $size->size }} - {{ $size->stock }}</option>
+                                                    <option value="{{ $size->id }}">{{ $size->size }} - Stock:{{ $size->stock }}</option>
                                                 @endforeach
                                             </select>
-                                        </div>
-                                        <div>
-                                            <p class='w-full text-xl font-medium rounded-xl p-2'>*Notes</p>
-                                            <textarea name="notes" class='border p-2 w-full bg-gray-50 rounded-xl' placeholder='Add Notes Here'>{{ $menu->notes }}</textarea>
-                                            </textarea>
                                         </div>
                                     </div>
                                 </div>

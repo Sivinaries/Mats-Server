@@ -44,9 +44,6 @@
                                                             {{ $item->quantity }}</h1>
                                                     </div>
                                                     <p class='font-light text-sm text-white line-clamp-1'>
-                                                        -{{ $item->notes }}
-                                                    </p>
-                                                    <p class='font-light text-sm text-white line-clamp-1'>
                                                         - {{ $item->size->size }}
                                                     </p>
                                                     <div class='flex space-x-2'>

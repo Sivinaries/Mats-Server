@@ -35,10 +35,7 @@ class SettlementController extends Controller
 
         $user->settlements()->create($data);
 
-        Cache::forget('settlements_with_users');
-        Cache::remember('settlements_with_users', now()->addMinutes(60), function(){
-            return Settlement::all();
-        });
+        Cache::put('settlements_with_users', Settlement::all(), now()->addMinutes(60));
 
         return redirect(route('settlement'))->with('success', 'New settlement created successfully!');
     }
@@ -64,20 +61,14 @@ class SettlementController extends Controller
         $data['end_time'] = Carbon::now()->toDateTimeString();
         $latestSettlement->update($data);
 
-        Cache::forget('settlements_with_users');
-        Cache::forget("settlement_{$latestSettlement->id}");
-        Cache::remember('settlements_with_users', now()->addMinutes(60), function(){
-            return Settlement::all();
-        });
+        Cache::put('settlements_with_users', Settlement::all(), now()->addMinutes(60));
 
         return redirect(route('settlement'))->with('success', 'Shift ended successfully!');
     }
 
     public function show($id)
     {
-        $settlement = Cache::remember("settlement_{$id}", now()->addMinutes(60), function () use ($id) {
-            return Settlement::with('histoys')->find($id);
-        });
+        $settlement = Settlement::with('histoys')->find($id);
 
         return view('showsettlement', compact('settlement'));
     }

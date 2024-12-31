@@ -35,41 +35,44 @@ class SizeController extends Controller
 
         Size::create($data);
 
-        Cache::forget('sizes');
+        Cache::put('sizes', Size::all(), now()->addMinutes(60));
 
         return redirect(route('size'))->with('success', 'Size Sukses Dibuat !');
     }
 
     public function edit($id)
     {
-        $discount = Discount::find($id);
-        return view('editdiscount', compact('discount'));
+        $size = Size::find($id);
+
+        $products = Menu::select('id', 'name')->get();
+
+        return view('editsize', compact('size', 'products'));
     }
 
     public function update(Request $request, $id)
     {
         $request->validate([
-            'name' => 'required',
-            'percentage' => 'required',
-            'percentage' => 'required',
+            'menu_id' => 'required',
+            'size' => 'required',
+            'stock' => 'required',
         ]);
 
-        $data = $request->only(['name', 'nominal']);
+        $data = $request->only(['menu_id', 'size', 'stock']);
 
-        Discount::where('id', $id)->update($data);
+        Size::where('id', $id)->update($data);
 
-        Cache::forget('discounts');
+        Cache::put('sizes', Size::all(), now()->addMinutes(60));
 
-        return redirect(route('discount'))->with('success', 'Discount Sukses Diupdate !');
+        return redirect(route('size'))->with('success', 'Size Sukses Diupdate !');
     }
 
     public function destroy($id)
     {
-        Discount::destroy($id);
+        Size::destroy($id);
 
-        Cache::forget('discounts');
+        Cache::forget('sizes');
 
-        return redirect(route('discount'))->with('success', 'Discount Berhasil Dihapus !');
+        return redirect(route('sizew'))->with('success', 'Size Berhasil Dihapus !');
     }
 
 }

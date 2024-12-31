@@ -3,9 +3,6 @@
   <head>
     <title>Users</title>
     @include('layout.head')
-    <link
-      href="//cdn.datatables.net/2.0.2/css/dataTables.dataTables.min.css"
-      rel="stylesheet" />
   </head>
   
   <body class="bg-gray-50">
@@ -22,7 +19,7 @@
           <div class="p-8">
             <div class="space-y-8">
               <div class="mx-auto text-center">
-                <h1 class="text-3xl">QR Code for {{ $user->name }}</h1>
+                <h1 class="text-3xl">QR Code for {{ $product->name }}</h1>
               </div>
               <div class="mx-auto text-center">
                 <img class="text-center mx-auto" src="{{ asset('storage/' . $filename) }}" alt="QR Code" />
@@ -33,6 +30,5 @@
       </div>
     </main>
     @include('layout.script')
-
   </body>
 </html>

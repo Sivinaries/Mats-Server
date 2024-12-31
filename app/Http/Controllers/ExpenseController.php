@@ -31,10 +31,7 @@ class ExpenseController extends Controller
 
         Expense::create($data);
 
-        Cache::forget('expenses');
-        Cache::remember('expenses', now()->addMinutes(60), function () {
-            return Expense::all();
-        });
+        Cache::put('expenses', Expense::all(), now()->addMinutes(60));
 
         return redirect(route('expense'))->with('success', 'Expense Sukses Dibuat !');
     }
@@ -55,10 +52,7 @@ class ExpenseController extends Controller
         $data = $request->only(['name', 'nominal']);
         Expense::where('id', $id)->update($data);
 
-        Cache::forget('expenses');
-        Cache::remember('expenses', now()->addMinutes(60), function () {
-            return Expense::all();
-        });
+        Cache::put('expenses', Expense::all(), now()->addMinutes(60));
 
         return redirect(route('expense'))->with('success', 'Expense Sukses Diupdate !');
     }
@@ -67,7 +61,6 @@ class ExpenseController extends Controller
     {
         Expense::destroy($id);
 
-        // Clear the cache for expenses
         Cache::forget('expenses');
 
         return redirect(route('expense'))->with('success', 'Expense Berhasil Dihapus !');

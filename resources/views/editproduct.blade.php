@@ -26,29 +26,31 @@
                         @csrf
                         @method('put')
                         <div class="grid grid-cols-1 xl:grid-cols-3 gap-2">
-                        <div class="space-y-2">
-                            <label class="font-semibold text-black">Nama produk:</label>
-                            <input type="text"
-                                class="bg-gray-50 border border-gray-300 text-gray-900 p-2 rounded-lg w-full"
-                                id="name" name="name" value="{{ $menu->name }}" required>
+                            <div class="space-y-2">
+                                <label class="font-semibold text-black">Nama produk:</label>
+                                <input type="text"
+                                    class="bg-gray-50 border border-gray-300 text-gray-900 p-2 rounded-lg w-full"
+                                    id="name" name="name" value="{{ $menu->name }}" required>
+                            </div>
+                            <div class="space-y-2">
+                                <label class="font-semibold text-black">Harga produk:</label>
+                                <input type="number"
+                                    class="bg-gray-50 border border-gray-300 text-gray-900 p-2 rounded-lg w-full"
+                                    id="price" name="price" value="{{ $menu->price }}" required>
+                                <p id="priceOutput">Rp.</p>
+                            </div>
+                            <div class="space-y-2">
+                                <label class="font-semibold text-black">Kategori:</label>
+                                <select id="category" name="category_id"
+                                    class="bg-gray-50 border border-gray-300 text-gray-900 p-2 rounded-lg w-full"
+                                    required>
+                                    <option></option>
+                                    @foreach ($category as $cat)
+                                        <option value="{{ $cat->id }}">{{ $cat->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
                         </div>
-                        <div class="space-y-2">
-                            <label class="font-semibold text-black">Harga produk:</label>
-                            <input type="number"
-                                class="bg-gray-50 border border-gray-300 text-gray-900 p-2 rounded-lg w-full"
-                                id="price" name="price" value="{{ $menu->price }}" required>
-                        </div>
-                        <div class="space-y-2">
-                            <label class="font-semibold text-black">Kategori:</label>
-                            <select id="category" name="category_id"
-                                class="bg-gray-50 border border-gray-300 text-gray-900 p-2 rounded-lg w-full" required>
-                                <option></option>
-                                @foreach ($category as $cat)
-                                    <option value="{{ $cat->id }}">{{ $cat->name }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                    </div>
                         <div class="space-y-2">
                             <label class="font-semibold text-black">Deskripsi produk:</label>
                             <textarea class="bg-gray-50 border border-gray-300 text-gray-900 p-2 rounded-lg w-full" id="description"
@@ -82,8 +84,29 @@
                 this.removeAttribute('disabled');
             }
         });
-    </script>    
-    @include('layout.script')
+    
+        const priceInput = document.getElementById('price');
+        const priceOutput = document.getElementById('priceOutput');
+    
+        // Function to format number to IDR currency
+        function formatToIDR(value) {
+            if (!value || isNaN(value)) return 'Rp. 0';
+            return 'Rp. ' + parseInt(value).toLocaleString('id-ID');
+        }
+    
+        // Event listener for input formatting
+        priceInput.addEventListener('input', () => {
+            const formattedPrice = formatToIDR(priceInput.value);
+            priceOutput.textContent = formattedPrice;
+        });
+    
+        // Initialize priceOutput on page load if there's already a value
+        document.addEventListener('DOMContentLoaded', () => {
+            priceOutput.textContent = formatToIDR(priceInput.value);
+        });
+    </script>
+        @include('layout.script')
 
 </body>
+
 </html>

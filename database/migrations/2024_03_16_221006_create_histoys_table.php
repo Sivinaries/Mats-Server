@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('no_order')->nullable(); 
             $table->string('order');
             $table->string('payment_type');
-            $table->decimal('total_amount', 10, 2)->nullable();
+            $table->integer('total_amount')->nullable();
             $table->string('status')->nullable(); 
             $table->foreignId('settlement_id')->constrained()->onUpdate('cascade')->onDelete('cascade');
             $table->timestamps();

@@ -12,11 +12,13 @@ use App\Models\CartMenu;
 use App\Models\Category;
 use App\Models\Settlement;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 
 class ApiController extends Controller
 {
+    //LOGIN
     public function login(Request $request)
     {
         $request->validate([
@@ -36,20 +38,7 @@ class ApiController extends Controller
         return response()->json(['token' => $token, 'user' => $user], 200);
     }
 
-    public function logout(Request $request)
-    {
-        if ($user = Auth::guard('web')->user()) {
-            $user->tokens->each(function ($token) {
-                $token->delete();
-            });
-        }
-
-        Auth::guard('web')->logout();
-
-        return response()->json(['message' => 'Logged out successfully'], 200);
-    }
-
-
+    //SEARCH
     public function search(Request $request)
     {
         $query = $request->input('q');
@@ -65,21 +54,39 @@ class ApiController extends Controller
         ], 200);
     }
 
+    //CATEGORY
     public function category()
     {
-
-        $category = Cache::remember('categories_with_menus', now()->addMinutes(60), function () {
-            return Category::with(['menus'])->get();
-        });
+        $category = Category::with(['menus'])->get();
 
         return response()->json([
             'category' => $category
         ], 200);
     }
 
+    //HISTORY
+    public function history()
+    {
+        $history = Histoy::all();
+
+        return response()->json([
+            'history' => $history
+        ], 200);
+    }
+
+    //SETTLEMENT
+    public function settlement()
+    {
+        $settlement = Settlement::with('user')->get();
+
+        return response()->json([
+            'settlement' => $settlement
+        ], 200);
+    }
+
+    //CART
     public function cart()
     {
-        // $cart = Cart::with('cartMenus')->get();
         $user = auth()->user();
 
         $cart = $user->carts()->with(['cartMenus.menu', 'cartMenus.size'])->latest()->first();
@@ -93,6 +100,70 @@ class ApiController extends Controller
         ], 200);
     }
 
+    public function removecart($id)
+    {
+        $user = auth()->user();
+        $cart = $user->carts()->latest()->first();
+
+        $cartMenu = CartMenu::findOrFail($id);
+
+        $subtotal = $cartMenu->subtotal;
+
+        $cartMenu->delete();
+
+        $cart->update(['total_amount' => $cart->total_amount - $subtotal]);
+
+        return response()->json([
+            'cart' => $cart
+        ], 200);
+    }
+
+    public function postcart(Request $request)
+    {
+        $request->validate([
+            'menu_id' => 'required|exists:menus,id',
+            'quantity' => 'required|integer|min:1',
+            'size_id' => 'required|exists:sizes,id',
+        ]);
+
+        $user = auth()->user();
+        $cart = $user->carts()->latest()->first() ?? $user->carts()->create(['total_amount' => 0]);
+
+        $menu = Menu::findOrFail($request->input('menu_id'));
+        $size = Size::findOrFail($request->input('size_id')); // Ensure size exists.
+
+        $quantity = $request->input('quantity');
+        $subtotal = $menu->price * $quantity;
+
+        if ($size->stock < $quantity) {
+            return back()->withErrors(['stock' => 'Insufficient stock for this size.']);
+        }
+
+        $existingCartMenu = CartMenu::where('cart_id', $cart->id)
+            ->where('menu_id', $menu->id)
+            ->where('size_id', $size->id)
+            ->first();
+
+        if ($existingCartMenu) {
+            $existingCartMenu->quantity += $quantity;
+            $existingCartMenu->subtotal += $subtotal;
+            $existingCartMenu->save();
+        } else {
+            CartMenu::create([
+                'cart_id' => $cart->id,
+                'menu_id' => $menu->id,
+                'size_id' => $size->id,
+                'quantity' => $quantity,
+                'subtotal' => $subtotal,
+            ]);
+        }
+
+        $cart->update(['total_amount' => $cart->total_amount + $subtotal]);
+
+        return response()->json(['message' => 'Item added to cart successfully.'], 200);
+    }
+
+    //ORDER
     public function order()
     {
         $orders = Order::with(['cart.user', 'cart.cartMenus.menu', 'cart.cartMenus.size'])->get();
@@ -139,123 +210,177 @@ class ApiController extends Controller
         ]);
     }
 
-    public function history()
-    {
-        $history = Cache::remember('history', now()->addMinutes(60), function () {
-            return Histoy::all();
-        });
-
-        return response()->json([
-            'history' => $history
-        ], 200);
-    }
-
-    public function settlement()
-    {
-        $settlement = Cache::remember('settlement_with_users', now()->addMinutes(60), function () {
-            return Settlement::with('user')->get();
-        });
-
-        return response()->json([
-            'settlement' => $settlement
-        ], 200);
-    }
-
-    public function showproduct($id)
-    {
-        $menu = Cache::remember("menu_{$id}", now()->addMinutes(60), function () use ($id) {
-            return Menu::with('sizes')->find($id);
-        });
-
-        return response()->json([
-            'menu' => $menu,
-        ], 200);
-    }
-
-    public function removecart($id)
-    {
-        $user = auth()->user();
-        $cart = $user->carts()->latest()->first();
-
-        $cartMenu = CartMenu::findOrFail($id);
-
-        $subtotal = $cartMenu->subtotal;
-
-        $cartMenu->discount_id;
-
-        $cartMenu->delete();
-
-        $cart->update(['total_amount' => $cart->total_amount - $subtotal]);
-
-        return response()->json([
-            'cart' => $cart
-        ], 200);
-    }
-
-    public function postcart(Request $request)
-    {
-        $request->validate([
-            'menu_id' => 'required|exists:menus,id',
-            'quantity' => 'required|integer|min:1',
-            'notes' => 'nullable|string',
-            'size_id' => 'required|exists:sizes,id',
-        ]);
-
-        $user = auth()->user();
-        $cart = $user->carts()->latest()->first() ?? $user->carts()->create(['total_amount' => 0]);
-
-        $menu = Menu::findOrFail($request->input('menu_id'));
-        $size = Size::findOrFail($request->input('size_id')); // Ensure size exists.
-
-        $quantity = $request->input('quantity');
-        $subtotal = $menu->price * $quantity;
-
-        if ($size->stock < $quantity) {
-            return back()->withErrors(['stock' => 'Insufficient stock for this size.']);
-        }
-
-        $existingCartMenu = CartMenu::where('cart_id', $cart->id)
-            ->where('menu_id', $menu->id)
-            ->where('size_id', $size->id)
-            ->where('notes', $request->input('notes'))
-            ->first();
-
-        if ($existingCartMenu) {
-            $existingCartMenu->quantity += $quantity;
-            $existingCartMenu->subtotal += $subtotal;
-            $existingCartMenu->save();
-        } else {
-            CartMenu::create([
-                'cart_id' => $cart->id,
-                'menu_id' => $menu->id,
-                'size_id' => $size->id,
-                'quantity' => $quantity,
-                'notes' => $request->input('notes'),
-                'subtotal' => $subtotal,
-            ]);
-        }
-
-        $cart->update(['total_amount' => $cart->total_amount + $subtotal]);
-
-        return response()->json(['message' => 'Item added to cart successfully.'], 200);
-    }
-
     public function postorder(Request $request)
     {
         $user = auth()->user();
+
+        $cart = $user->carts()->with('user', 'cartMenus.menu')->latest()->first();
 
         $request->validate([
             'atas_nama' => 'required|string|max:255',
         ]);
 
-        $cart = $user->carts()->with('user', 'cartMenus.menu',)->latest()->first();
+        $orderId = 'ORDER-' . strtoupper(substr(Uuid::uuid4()->toString(), 0, 8));
+
+        $order = new Order();
+        $order->cart_id = $cart->id;
+        $order->no_order = $orderId;
+        $order->status = 'Pending';
+        $order->payment_type = 'Pending';
+        $order->atas_nama = $request->atas_nama;
+        $order->save();
+
+        return response()->json([
+            'order' => $order,
+        ], 200);
+    }
+
+    public function showorder($id)
+    {
+        $order = Order::find($id);
+
+        return response()->json([
+            'order' => $order,
+        ], 200);
+    }
+
+    public function archive($id)
+    {
+        $order = Order::with('cart.cartMenus.menu', 'cart.cartMenus.size')->find($id);
+
+        if (!$order) {
+            return redirect()->back()->with('error', 'Order tidak ditemukan!');
+        }
+
+        $user = auth()->user();
+
+        $settlement = $user->settlements()->latest()->first();
+
+        if (!$settlement) {
+            $settlement = new Settlement();
+            $settlement->user_id = $user->id;
+            $settlement->start_time = now();
+            $settlement->start_amount = 0;
+            $settlement->total_amount = 0;
+            $settlement->expected = 0;
+            $settlement->save();
+        }
+
+        DB::transaction(function () use ($order, $settlement) {
+            $history = new Histoy();
+            $history->id = $order->id;
+            $history->no_order = $order->no_order;
+            $history->name = $order->atas_nama;
+            $orderDetails = '';
+
+            foreach ($order->cart->cartMenus as $cartMenu) {
+                $orderDetails .= "{$cartMenu->menu->name} - {$cartMenu->quantity} - {$cartMenu->size->size} - {$cartMenu->notes}";
+
+                if ($cartMenu->size) {
+                    $cartMenu->size->decrement('stock', $cartMenu->quantity);
+                } else {
+                    $cartMenu->menu->decrement('stock', $cartMenu->quantity);
+                }
+            }
+
+            Cache::put('sizes', Size::all(), now()->addMinutes(60));
+
+            $history->order = $orderDetails;
+            $history->total_amount = $order->cart->total_amount;
+            $history->status = $order->status;
+            $history->payment_type = $order->payment_type;
+            $history->settlement_id = $settlement->id;
+
+            $history->save();
+
+            Cache::forget('history');
+
+            $totalHistoyAmount = $settlement->histoys()->sum('total_amount');
+            $settlement->expected = $totalHistoyAmount + $settlement->start_amount;
+            $settlement->save();
+
+            Cache::forget('settlements_with_users');
+
+            foreach ($order->cart->cartMenus as $cartMenu) {
+                $cartMenu->delete();
+            }
+
+            $order->cart->delete();
+            $order->delete();
+        });
+
+        return response()->json([
+            'order' => $order
+        ], 200);
+    }
+
+    public function destroy($id)
+    {
+        $order = Order::with('cart.cartMenus.menu', 'cart.cartMenus.size')->find($id);
+
+        if (!$order) {
+            return redirect(route('order'))->with('error', 'Order tidak ditemukan!');
+        }
+
+        DB::transaction(function () use ($order) {
+
+            $order->cart->cartMenus()->delete();
+            $order->cart()->delete();
+            $order->delete();
+
+            Cache::put('sizes', Size::all(), now()->addMinutes(60));
+        });
+
+        return response()->json([
+            'order' => $order
+        ], 200);
+    }
+
+    //PAYMENT
+    public function postcash(Request $request)
+    {
+        $request->validate([
+            'order_id' => 'required|exists:orders,id',
+        ]);
+
+        $orderId = $request->input('order_id');
+        $order = Order::find($orderId);
+
+        if ($order) {
+            $order->status = 'settlement';
+            $order->payment_type = 'cash';
+            $order->save();
+
+            $newCart = new Cart();
+            $newCart->user_id = $order->cart->user_id ?? null;
+            $newCart->save();
+
+            return response()->json([
+                'message' => 'Payment successful',
+                'order' => $order,
+            ], 200);
+        }
+
+        return response()->json([
+            'message' => 'Order not found',
+        ], 404);
+    }
+
+    public function postonline(Request $request)
+    {
+        $orderId = $request->input('order_id');
+        $order = Order::find($orderId);
+
+        if (!$order) {
+            return response()->json(['error' => 'Order not found'], 404);
+        }
+
+        $cart = $order->cart; // Fix relationship to use the correct cart
 
         \Midtrans\Config::$serverKey = config('midtrans.server_key');
         \Midtrans\Config::$isProduction = true;
         \Midtrans\Config::$isSanitized = true;
         \Midtrans\Config::$is3ds = true;
-
-        $orderId = 'ORDER-' . strtoupper(substr(Uuid::uuid4()->toString(), 0, 8));
 
         $items = $cart->cartMenus->map(function ($cartMenu) {
             return [
@@ -285,22 +410,21 @@ class ApiController extends Controller
 
         $params = [
             'transaction_details' => [
-                'order_id' => $orderId,
-                'gross_amount' => $cart->total_amount + ($request->ongkir ?? 0),
+                'order_id' => $order->no_order, // Use the existing order ID
+                'gross_amount' => $cart->total_amount,
             ],
             'item_details' => $items,
             'customer_details' => $customer_details,
         ];
 
-        $order = new Order();
-        $order->cart_id = $cart->id;
-        $order->no_order = $orderId;
-        $order->atas_nama = $request->atas_nama;
-        $order->save();
-
         $snapToken = \Midtrans\Snap::getSnapToken($params);
 
-        $user->carts()->create();
+        $order->no_order = $params['transaction_details']['order_id'];
+        $order->save();
+
+        $newCart = new Cart();
+        $newCart->user_id = $order->cart->user_id;
+        $newCart->save();
 
         return response()->json([
             'snapToken' => $snapToken,
@@ -308,25 +432,26 @@ class ApiController extends Controller
         ], 200);
     }
 
-    public function cashpayment(Request $request)
+    //PRODUCT
+    public function showproduct($id)
     {
-        $orderId = $request->input('order_id');
-        $order = Order::find($orderId);
-
-        if ($order) {
-            $order->status = 'settlement';
-            $order->payment_type = 'cash';
-            $order->save();
-
-            $newCart = new Cart();
-            $newCart->user_id = $order->cart->user_id;
-            $newCart->save();
-
-        }
+        $menu = Menu::with('sizes')->find($id);
 
         return response()->json([
-            'order' => $order,
+            'menu' => $menu,
         ], 200);
-        // return redirect()->route('order')->with('error', 'Cash payment failed!');
+    }
+
+    //LOGOUT
+    public function logout(Request $request)
+    {
+        if ($user = Auth::guard('web')->user()) {
+
+            $user->tokens()->delete();
+        }
+
+        Auth::guard('web')->logout();
+
+        return response()->json(['message' => 'Logged out successfully'], 200);
     }
 }

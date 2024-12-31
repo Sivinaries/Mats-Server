@@ -16,9 +16,8 @@ return new class extends Migration
             $table->foreignId('cart_id')->constrained()->onDelete('cascade')->onUpdate('cascade');
             $table->foreignId('menu_id')->constrained()->onDelete('cascade')->onUpdate('cascade');
             $table->foreignId('size_id')->nullable()->constrained()->onDelete('set null')->onUpdate('cascade');
-            $table->string('notes')->nullable();
             $table->integer('quantity');
-            $table->decimal('subtotal', 8, 2);        
+            $table->integer('subtotal');        
             $table->timestamps();
         });
     }

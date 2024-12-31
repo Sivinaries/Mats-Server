@@ -63,10 +63,10 @@
                                         <td>
                                             Rp. {{ number_format($order->cart->total_amount, 0, ',', '.') }}
                                         </td>
-                                        <td>{{ $order->status }}</td>
+                                        <td>{{ $order->status ?? 'N/A' }}</td>
                                         <td class="flex gap-2">
                                             <div class="w-full">
-                                                <form action="{{ route('archive', ['orderId' => $order->id]) }}"
+                                                <form action="{{ route('archive', ['id' => $order->id]) }}"
                                                     method="POST">
                                                     @csrf
                                                     <button type="submit"
