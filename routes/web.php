@@ -47,6 +47,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/order/{id}/delete', [OrderController::class, 'destroy'])->name('delorder');
     Route::post('/order/{id}/archive', [OrderController::class, 'archive'])->name('archive');
     Route::post('/cashpayment', [OrderController::class, 'cashpayment'])->name('cashpayment');
+    Route::post('/edcpayment', [OrderController::class, 'edcpayment'])->name('edcpayment');
     Route::post('/onlinepayment', [OrderController::class, 'onlinepayment'])->name('onlinepayment');
 
     //MENU CONTROLLER

@@ -82,6 +82,7 @@ class OrderController extends Controller
 
         $request->validate([
             'atas_nama' => 'required|string|max:255',
+            'email' => 'required',
         ]);
 
         $orderId = 'ORDER-' . strtoupper(substr(Uuid::uuid4()->toString(), 0, 8));
@@ -92,6 +93,7 @@ class OrderController extends Controller
         $order->status = 'Pending';
         $order->payment_type = 'Pending';
         $order->atas_nama = $request->atas_nama;
+        $order->email = $request->email;
         $order->save();
 
         return view('checkout', compact('order'));
@@ -176,8 +178,28 @@ class OrderController extends Controller
         $order = Order::find($orderId);
 
         if ($order) {
-            $order->status = 'settlement';
-            $order->payment_type = 'cash';
+            $order->status = 'Settlement';
+            $order->payment_type = 'Cash';
+            $order->save();
+
+            $newCart = new Cart();
+            $newCart->user_id = $order->cart->user_id;
+            $newCart->save();
+
+            return redirect()->route('order')->with('success', 'Cash payment successful!');
+        }
+
+        return redirect()->route('order')->with('error', 'Cash payment failed!');
+    }
+
+    public function edcpayment(Request $request)
+    {
+        $orderId = $request->input('order_id');
+        $order = Order::find($orderId);
+
+        if ($order) {
+            $order->status = 'Settlement';
+            $order->payment_type = 'EDC';
             $order->save();
 
             $newCart = new Cart();

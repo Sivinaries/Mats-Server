@@ -53,9 +53,9 @@
                                         <td>
                                             @foreach ($order->cart->cartMenus as $cartMenu)
                                                 <div class="">
-                                                    <h1>Name:  {{ $cartMenu->menu->name }}</h1>
-                                                    <h1>Size:  {{ $cartMenu->size->size }}</h1>
-                                                    <h1>Qty:  {{ $cartMenu->quantity }}</h1>
+                                                    <h1>{{ $cartMenu->menu->name }}</h1>
+                                                    <h1>{{ $cartMenu->size->size }}</h1>
+                                                    <h1>{{ $cartMenu->quantity }}</h1>
                                                 </div>
                                             @endforeach
                                         </td>

@@ -15,6 +15,7 @@ class Order extends Model
         'status',
         'payment_type',
         'atas_nama',
+        'email',
     ];
 
     public function cart()

@@ -22,7 +22,6 @@ class CartController extends Controller
         $request->validate([
             'menu_id' => 'required|exists:menus,id',
             'quantity' => 'required|integer|min:1',
-            'notes' => 'nullable|string',
             'size_id' => 'required|exists:sizes,id',
         ]);
 
@@ -43,7 +42,6 @@ class CartController extends Controller
         $existingCartMenu = CartMenu::where('cart_id', $cart->id)
             ->where('menu_id', $menu->id)
             ->where('size_id', $size->id)
-            ->where('notes', $request->input('notes'))
             ->first();
 
         if ($existingCartMenu) {
@@ -56,7 +54,6 @@ class CartController extends Controller
                 'menu_id' => $menu->id,
                 'size_id' => $size->id,
                 'quantity' => $quantity,
-                'notes' => $request->input('notes'),
                 'subtotal' => $subtotal,
             ]);
         }

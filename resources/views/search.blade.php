@@ -70,7 +70,7 @@
                                                         <td class="flex gap-2">
                                                             <div class="w-full">
                                                                 <form
-                                                                    action="{{ route('archive', ['orderId' => $order->id]) }}"
+                                                                    action="{{ route('archive', ['id' => $order->id]) }}"
                                                                     method="POST">
                                                                     @csrf
                                                                     <button type="submit"

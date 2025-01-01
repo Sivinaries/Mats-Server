@@ -22,15 +22,25 @@
                     <h1 class="font-extrabold text-3xl">Edit category</h1>
                 </div>
                 <div class="p-6">
-                    <form class="space-y-3" method="post" action="{{ route('updatecategory', ['id' => $category->id]) }}"
-                        enctype="multipart/form-data">
+                    @if ($errors->any())
+                        <div class="bg-red-200 text-red-800 p-4 rounded-lg mb-4">
+                            <ul>
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
+                    <form class="space-y-3" method="post"
+                        action="{{ route('updatecategory', ['id' => $category->id]) }}" enctype="multipart/form-data">
                         @csrf
                         @method('put')
+                        <input type="hidden" name="old_id" value="{{ old('old_id', $category->id) }}">
                         <div class="space-y-2">
                             <label class="font-semibold text-black">Category:</label>
                             <input type="text"
                                 class="bg-gray-50 border border-gray-300 text-gray-900 p-2 rounded-lg w-full"
-                                id="name" name="name" value="{{ $category->name }}" required>
+                                id="name" name="name" value="{{ old('name', $category->name) }}" required>
                         </div>
                         <button type="submit"
                             class="bg-blue-500 text-white p-4 w-full hover:text-black rounded-lg">Submit</button>
@@ -42,4 +52,5 @@
     @include('layout.script')
 
 </body>
+
 </html>

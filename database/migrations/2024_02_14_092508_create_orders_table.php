@@ -13,6 +13,7 @@ return new class extends Migration
             $table->foreignId('cart_id')->constrained()->onUpdate('cascade')->onDelete('cascade');
             $table->string('no_order')->nullable(); 
             $table->string('atas_nama')->nullable(); 
+            $table->string('email')->nullable(); 
             $table->string('status')->nullable(); 
             $table->string('payment_type')->nullable(); 
             $table->timestamps();

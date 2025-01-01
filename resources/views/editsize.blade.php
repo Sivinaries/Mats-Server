@@ -22,17 +22,30 @@
                     <h1 class="font-extrabold text-3xl">Edit size</h1>
                 </div>
                 <div class="p-6">
+                    @if ($errors->any())
+                        <div class="bg-red-200 text-red-800 p-4 rounded-lg mb-4">
+                            <ul>
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
                     <form class="space-y-3" method="post" action="{{ route('updatesize', ['id' => $size->id]) }}"
                         enctype="multipart/form-data">
                         @csrf
                         @method('put')
+                        <input type="hidden" name="old_id" value="{{ old('old_id', $size->id) }}">
                         <div class="space-y-2">
                             <label class="font-semibold text-black">Product:</label>
                             <select id="menu" name="menu_id"
                                 class="bg-gray-50 border border-gray-300 text-gray-900 p-2 rounded-lg w-full" required>
                                 <option></option>
                                 @foreach ($products as $item)
-                                    <option value="{{ $item->id }}">{{ $item->name }}</option>
+                                    <option value="{{ $item->id }}"
+                                        {{ old('menu_id', $size->menu_id) == $item->id ? 'selected' : '' }}>
+                                        {{ $item->name }}
+                                    </option>
                                 @endforeach
                             </select>
                         </div>
@@ -58,4 +71,5 @@
     @include('layout.script')
 
 </body>
+
 </html>

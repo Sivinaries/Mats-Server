@@ -99,6 +99,12 @@
                                     class="bg-gray-50 border border-gray-300 text-gray-900 p-2 rounded-lg w-full"
                                     id="atas_nama" name="atas_nama" placeholder="John Doe" required>
                             </div>
+                            <div class="space-y-2">
+                                <label class="font-semibold text-black text-lg">Email:</label>
+                                <input type="email"
+                                    class="bg-gray-50 border border-gray-300 text-gray-900 p-2 rounded-lg w-full"
+                                    id="email" name="email" placeholder="JohnDoe@gmail.com" required>
+                            </div>
                             <div class="flex justify-between">
                                 <div class="flex gap-2 my-auto">
                                     <label class="text-black font-bold text-2xl">Total:</label>

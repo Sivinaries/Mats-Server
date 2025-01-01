@@ -70,6 +70,15 @@
                                         id="cash-button">Cash Payment</button>
                                 </div>
                             </form>
+                            <form action="{{ route('edcpayment') }}" method="POST">
+                                @csrf
+                                <input type="hidden" name="order_id" value="{{ $order->id }}">
+                                <div class="space-y-2 ">
+                                    <button type="submit"
+                                        class="bg-yellow-500 text-xl text-white p-2 w-fit hover:text-black rounded-lg"
+                                        id="cash-button">EDC Payment</button>
+                                </div>
+                            </form>
                         </div>
                     </div>
                 </div>
