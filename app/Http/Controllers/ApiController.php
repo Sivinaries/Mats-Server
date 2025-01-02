@@ -60,7 +60,9 @@ class ApiController extends Controller
     //CATEGORY
     public function category()
     {
-        $category = Category::with(['menus'])->get();
+        $category =  Cache::remember('categories', now()->addMinutes(60), function () {
+            return Category::with(['menus'])->get();
+        });
 
         return response()->json([
             'category' => $category
@@ -70,7 +72,9 @@ class ApiController extends Controller
     //HISTORY
     public function history()
     {
-        $history = Histoy::all();
+        $history = Cache::remember('history', now()->addMinutes(60), function () {
+            return Histoy::all();
+        });
 
         return response()->json([
             'history' => $history
@@ -80,7 +84,9 @@ class ApiController extends Controller
     //SETTLEMENT
     public function settlement()
     {
-        $settlement = Settlement::with('user')->get();
+        $settlement =  Cache::remember('settlements', now()->addMinutes(60), function () {
+            return Settlement::with('user')->get();
+        });
 
         return response()->json([
             'settlement' => $settlement
@@ -106,6 +112,8 @@ class ApiController extends Controller
         $data['start_time'] = Carbon::now()->toDateTimeString();
 
         $settlement = $user->settlements()->create($data);
+
+        Cache::put('settlements', Settlement::all(), now()->addMinutes(60));
 
         return response()->json([
             'settlement' => $settlement
@@ -313,7 +321,7 @@ class ApiController extends Controller
                 }
             }
 
-            Cache::put('sizes', Size::all(), now()->addMinutes(60));
+            Cache::forget('sizes');
 
             $history->order = $orderDetails;
             $history->total_amount = $order->cart->total_amount;
@@ -329,7 +337,7 @@ class ApiController extends Controller
             $settlement->expected = $totalHistoyAmount + $settlement->start_amount;
             $settlement->save();
 
-            Cache::forget('settlements_with_users');
+            Cache::forget('settlements');
 
             foreach ($order->cart->cartMenus as $cartMenu) {
                 $cartMenu->delete();

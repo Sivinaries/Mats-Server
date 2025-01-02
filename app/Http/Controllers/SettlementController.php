@@ -12,7 +12,7 @@ class SettlementController extends Controller
 {
     public function index()
     {
-        $settlements = Cache::remember('settlements_with_users', now()->addMinutes(60), function () {
+        $settlements = Cache::remember('settlements', now()->addMinutes(60), function () {
             return Settlement::with(['user'])->get();
         });
 
@@ -44,7 +44,7 @@ class SettlementController extends Controller
 
         $user->settlements()->create($data);
 
-        Cache::put('settlements_with_users', Settlement::all(), now()->addMinutes(60));
+        Cache::put('settlements', Settlement::all(), now()->addMinutes(60));
 
         return redirect(route('settlement'))->with('success', 'New settlement created successfully!');
     }
@@ -70,7 +70,7 @@ class SettlementController extends Controller
         $data['end_time'] = Carbon::now()->toDateTimeString();
         $latestSettlement->update($data);
 
-        Cache::put('settlements_with_users', Settlement::all(), now()->addMinutes(60));
+        Cache::put('settlements', Settlement::all(), now()->addMinutes(60));
 
         return redirect(route('settlement'))->with('success', 'Shift ended successfully!');
     }
@@ -86,7 +86,7 @@ class SettlementController extends Controller
     {
         Settlement::destroy($id);
 
-        Cache::forget('settlements_with_users');
+        Cache::forget('settlements');
 
         return redirect(route('settlement'))->with('success', 'Settlement deleted successfully!');
     }
