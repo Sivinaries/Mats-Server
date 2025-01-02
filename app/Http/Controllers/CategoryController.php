@@ -38,6 +38,8 @@ class CategoryController extends Controller
     public function edit($id)
     {
         $category = Category::findOrFail($id);
+
+        Cache::put('categories', Category::all(), now()->addMinutes(60));
         
         return view('editcategory', compact('category'));
     }

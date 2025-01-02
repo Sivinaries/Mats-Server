@@ -7,7 +7,6 @@ use App\Models\CartMenu;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
-use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class ProductController extends Controller
 {
@@ -53,8 +52,6 @@ class ProductController extends Controller
 
         Cache::put('menus', Menu::all(), now()->addMinutes(60));
 
-        Cache::put('categories_with_menus', Category::with('menus')->get(), now()->addMinutes(60));
-
         return redirect(route('product'))->with('success', 'Product Sukses Dibuat!');
     }
 
@@ -96,8 +93,6 @@ class ProductController extends Controller
         Menu::where('id', $id)->update($menuData);
 
         Cache::put('menus', Menu::all(), now()->addMinutes(60));
-
-        Cache::put('categories_with_menus', Category::with('menus')->get(), now()->addMinutes(60));
 
         return redirect(route('product'))->with('success', 'Product Sukses Diupdate !');
     }
