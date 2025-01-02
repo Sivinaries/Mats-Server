@@ -416,8 +416,6 @@ class ApiController extends Controller
             $newCart->user_id = $order->cart->user_id ?? null;
             $newCart->save();
 
-            Mail::to($order->email)->send(new InvoiceMail($order));
-
             return response()->json([
                 'message' => 'Payment successful',
                 'order' => $order,
@@ -488,8 +486,6 @@ class ApiController extends Controller
         $newCart = new Cart();
         $newCart->user_id = $order->cart->user_id;
         $newCart->save();
-
-        Mail::to($order->email)->send(new InvoiceMail($order));
 
         return response()->json([
             'snapToken' => $snapToken,
