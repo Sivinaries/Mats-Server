@@ -49,11 +49,6 @@ class ProductController extends Controller
 
         $menu = Menu::create($data);
 
-        $qrImageName = $sku . '.svg';
-        QrCode::format('svg')->size(200)->generate(route('showproduct', ['id' => $menu->id]), public_path('storage/qr/' . $qrImageName));
-
-        $data['qr_code'] = 'qr/' . $qrImageName;
-
         $menu->update($data);
 
         Cache::put('menus', Menu::all(), now()->addMinutes(60));
@@ -65,9 +60,7 @@ class ProductController extends Controller
 
     public function show($id)
     {
-        $menu = Cache::remember("menu_{$id}", now()->addMinutes(60), function () use ($id) {
-            return Menu::with('sizes')->find($id);
-        });
+        $menu = Menu::with('sizes')->find($id);
 
         return view('showproduct', compact('menu'));
     }

@@ -22,6 +22,15 @@
                     <h1 class="font-extrabold text-3xl">Add expense</h1>
                 </div>
                 <div class="p-6">
+                    @if ($errors->any())
+                        <div class="bg-red-200 text-red-800 p-4 rounded-lg mb-4">
+                            <ul>
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
                     <form class="space-y-3" method="post" action="{{ route('postexpense') }}"
                         enctype="multipart/form-data">
                         @csrf @method('post')

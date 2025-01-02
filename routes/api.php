@@ -34,6 +34,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     //SETTLEMENT
     Route::get('/settlement', [ApiController::class, 'settlement']);
+    Route::post('/poststart', [ApiController::class, 'poststart']);
 
     //HISTORY
     Route::get('/history', [ApiController::class, 'history']);

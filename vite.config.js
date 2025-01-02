@@ -8,7 +8,7 @@ export default defineConfig({
             refresh: true,
         }),
     ],
-    // server: {
-    //     host: '192.168.1.99', // Allow external access
-    // },
+    server: {
+        host: '192.168.100.24', // Allow external access
+    },
 });

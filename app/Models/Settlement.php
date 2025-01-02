@@ -8,7 +8,15 @@ use Illuminate\Database\Eloquent\Model;
 class Settlement extends Model
 {
     use HasFactory;
-    protected $fillable = ['user_id', 'start_time', 'end_time', 'start_amount', 'total_amount','expected'];
+    protected $fillable = [
+        'user_id',
+        'img',
+        'start_time',
+        'end_time',
+        'start_amount',
+        'total_amount',
+        'expected'
+    ];
 
     public function user()
     {

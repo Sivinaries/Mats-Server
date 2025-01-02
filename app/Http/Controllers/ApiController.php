@@ -10,10 +10,13 @@ use Ramsey\Uuid\Uuid;
 use App\Models\Histoy;
 use App\Models\CartMenu;
 use App\Models\Category;
+use App\Mail\InvoiceMail;
 use App\Models\Settlement;
 use Illuminate\Http\Request;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Cache;
 
 class ApiController extends Controller
@@ -78,6 +81,31 @@ class ApiController extends Controller
     public function settlement()
     {
         $settlement = Settlement::with('user')->get();
+
+        return response()->json([
+            'settlement' => $settlement
+        ], 200);
+    }
+
+    public function poststart(Request $request)
+    {
+        $data = $request->validate([
+            'start_amount' => 'nullable|numeric',
+            'img' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048', // Image validation rules
+        ]);
+
+        if ($request->hasFile('img')) {
+            $uploadedImage = $request->file('img'); // Get the uploaded file
+            $imageName = time() . '_' . $uploadedImage->getClientOriginalName(); // Create a unique name for the image
+            $imagePath = $uploadedImage->storeAs('img', $imageName, 'public'); // Store the image in the 'img' folder in the public disk
+            $data['img'] = 'img/' . $imageName; // Store the path in the database
+        }
+
+        $user = auth()->user();
+
+        $data['start_time'] = Carbon::now()->toDateTimeString();
+
+        $settlement = $user->settlements()->create($data);
 
         return response()->json([
             'settlement' => $settlement
@@ -218,6 +246,7 @@ class ApiController extends Controller
 
         $request->validate([
             'atas_nama' => 'required|string|max:255',
+            'email' => 'required',
         ]);
 
         $orderId = 'ORDER-' . strtoupper(substr(Uuid::uuid4()->toString(), 0, 8));
@@ -228,6 +257,7 @@ class ApiController extends Controller
         $order->status = 'Pending';
         $order->payment_type = 'Pending';
         $order->atas_nama = $request->atas_nama;
+        $order->email = $request->email;
         $order->save();
 
         return response()->json([
@@ -237,7 +267,7 @@ class ApiController extends Controller
 
     public function showorder($id)
     {
-        $order = Order::find($id);
+        $order = Order::with('cart')->find($id);
 
         return response()->json([
             'order' => $order,
@@ -355,6 +385,8 @@ class ApiController extends Controller
             $newCart->user_id = $order->cart->user_id ?? null;
             $newCart->save();
 
+            Mail::to($order->email)->send(new InvoiceMail($order));
+
             return response()->json([
                 'message' => 'Payment successful',
                 'order' => $order,
@@ -425,6 +457,8 @@ class ApiController extends Controller
         $newCart = new Cart();
         $newCart->user_id = $order->cart->user_id;
         $newCart->save();
+
+        Mail::to($order->email)->send(new InvoiceMail($order));
 
         return response()->json([
             'snapToken' => $snapToken,

@@ -3,14 +3,16 @@
 namespace App\Http\Controllers;
 
 use App\Models\Cart;
+use App\Models\Size;
 use App\Models\Order;
 use Ramsey\Uuid\Uuid;
 use App\Models\Histoy;
+use App\Mail\InvoiceMail;
 use App\Models\Settlement;
-use App\Models\Size;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Cache;
 
 class OrderController extends Controller
 {
@@ -159,6 +161,8 @@ class OrderController extends Controller
             $newCart->user_id = $order->cart->user_id;
             $newCart->save();
 
+            Mail::to($order->email)->send(new InvoiceMail($order));
+
             return response()->json([
                 'snapToken' => $snapToken,
                 'order' => $order,
@@ -186,6 +190,8 @@ class OrderController extends Controller
             $newCart->user_id = $order->cart->user_id;
             $newCart->save();
 
+            Mail::to($order->email)->send(new InvoiceMail($order));
+
             return redirect()->route('order')->with('success', 'Cash payment successful!');
         }
 
@@ -205,6 +211,8 @@ class OrderController extends Controller
             $newCart = new Cart();
             $newCart->user_id = $order->cart->user_id;
             $newCart->save();
+
+            Mail::to($order->email)->send(new InvoiceMail($order));
 
             return redirect()->route('order')->with('success', 'Cash payment successful!');
         }

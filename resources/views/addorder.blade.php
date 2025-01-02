@@ -85,6 +85,15 @@
                             </div>
                         </div>
                     </div>
+                    @if ($errors->any())
+                        <div class="bg-red-200 text-red-800 p-4 rounded-lg mb-4">
+                            <ul>
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
                     <div class="space-y-5">
                         <div class="text-center">
                             <a class="hover:text-black text-white text-xl bg-green-500 p-2 w-fit rounded-lg"

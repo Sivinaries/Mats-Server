@@ -28,9 +28,18 @@ class SettlementController extends Controller
     {
         $data = $request->validate([
             'start_amount' => 'nullable|numeric',
+            'img' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048', // Image validation rules
         ]);
 
+        if ($request->hasFile('img')) {
+            $uploadedImage = $request->file('img'); // Get the uploaded file
+            $imageName = time() . '_' . $uploadedImage->getClientOriginalName(); // Create a unique name for the image
+            $imagePath = $uploadedImage->storeAs('img', $imageName, 'public'); // Store the image in the 'img' folder in the public disk
+            $data['img'] = 'img/' . $imageName; // Store the path in the database
+        }
+
         $user = auth()->user();
+
         $data['start_time'] = Carbon::now()->toDateTimeString();
 
         $user->settlements()->create($data);

@@ -36,6 +36,7 @@
                         <table id="myTable" class="bg-gray-50 border-2">
                             <thead class="w-full">
                                 <th>No</th>
+                                <th>Img</th>
                                 <th>Name</th>
                                 <th>Start</th>
                                 <th>End</th>
@@ -51,6 +52,11 @@
                                 @foreach ($settlements as $item)
                                     <tr class="border-2">
                                         <td>{{ $no++ }}</td>
+                                        <td>
+                                            <img src="{{ asset('storage/img/' . basename($item->img)) }}"
+                                                alt="Product Image"
+                                                class='mx-auto my-auto w-44 h-32 rounded-xl relative' />
+                                        </td>
                                         <td>{{ $item->user->name }}</td>
                                         <td>{{ $item->start_time }}</td>
                                         <td>{{ $item->end_time }}</td>
@@ -96,4 +102,5 @@
     @include('layout.script')
 
 </body>
+
 </html>
