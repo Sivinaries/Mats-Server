@@ -44,7 +44,7 @@ class SettlementController extends Controller
 
         $user->settlements()->create($data);
 
-        Cache::put('settlements', Settlement::all(), now()->addMinutes(60));
+        Cache::forget('settlements');
 
         return redirect(route('settlement'))->with('success', 'New settlement created successfully!');
     }
@@ -70,7 +70,7 @@ class SettlementController extends Controller
         $data['end_time'] = Carbon::now()->toDateTimeString();
         $latestSettlement->update($data);
 
-        Cache::put('settlements', Settlement::all(), now()->addMinutes(60));
+        Cache::forget('settlements');
 
         return redirect(route('settlement'))->with('success', 'Shift ended successfully!');
     }

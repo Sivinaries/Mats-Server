@@ -30,7 +30,7 @@ class CategoryController extends Controller
 
         Category::create($data);
 
-        Cache::put('categories', Category::all(), now()->addMinutes(60));
+        Cache::forget('categories');
 
         return redirect(route('category'))->with('success', 'Category successfully created!');
     }
@@ -38,8 +38,6 @@ class CategoryController extends Controller
     public function edit($id)
     {
         $category = Category::findOrFail($id);
-
-        Cache::put('categories', Category::all(), now()->addMinutes(60));
         
         return view('editcategory', compact('category'));
     }
@@ -53,7 +51,7 @@ class CategoryController extends Controller
         $category = Category::findOrFail($id);
         $category->update($request->only(['name']));
 
-        Cache::put('categories', Category::all(), now()->addMinutes(60));
+        Cache::forget('categories');
 
         return redirect(route('category'))->with('success', 'Category successfully updated!');
     }
@@ -62,7 +60,7 @@ class CategoryController extends Controller
     {
         Category::destroy($id);
 
-        Cache::put('categories', Category::all(), now()->addMinutes(60));
+        Cache::forget('categories');
 
         return redirect(route('category'))->with('success', 'Category successfully deleted!');
     }

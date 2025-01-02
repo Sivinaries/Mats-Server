@@ -48,9 +48,9 @@ class ProductController extends Controller
 
         $menu = Menu::create($data);
 
-        $menu->update($data);
+        Cache::forget('menus');
 
-        Cache::put('menus', Menu::all(), now()->addMinutes(60));
+        Cache::forget('categories');
 
         return redirect(route('product'))->with('success', 'Product Sukses Dibuat!');
     }
@@ -92,7 +92,7 @@ class ProductController extends Controller
 
         Menu::where('id', $id)->update($menuData);
 
-        Cache::put('menus', Menu::all(), now()->addMinutes(60));
+        Cache::forget('menus');
 
         return redirect(route('product'))->with('success', 'Product Sukses Diupdate !');
     }

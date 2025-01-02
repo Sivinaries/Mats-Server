@@ -259,7 +259,7 @@ class OrderController extends Controller
                 }
             }
 
-            Cache::put('sizes', Size::all(), now()->addMinutes(60));
+            Cache::forget('sizes');
 
             $history->order = $orderDetails;
             $history->total_amount = $order->cart->total_amount;
@@ -302,7 +302,7 @@ class OrderController extends Controller
             $order->cart()->delete();
             $order->delete();
 
-            Cache::put('sizes', Size::all(), now()->addMinutes(60));
+            Cache::forget('sizes');
         });
 
         return redirect(route('order'))->with('success', 'Order berhasil dihapus dan stok dikembalikan!');

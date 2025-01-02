@@ -31,7 +31,7 @@ class ExpenseController extends Controller
 
         Expense::create($data);
 
-        Cache::put('expenses', Expense::all(), now()->addMinutes(60));
+        Cache::forget('expenses');
 
         return redirect(route('expense'))->with('success', 'Expense Sukses Dibuat !');
     }
@@ -39,6 +39,7 @@ class ExpenseController extends Controller
     public function edit($id)
     {
         $expense = Expense::find($id);
+
         return view('editexpense', compact('expense'));
     }
 
@@ -52,7 +53,7 @@ class ExpenseController extends Controller
         $data = $request->only(['name', 'nominal']);
         Expense::where('id', $id)->update($data);
 
-        Cache::put('expenses', Expense::all(), now()->addMinutes(60));
+        Cache::forget('expenses');
 
         return redirect(route('expense'))->with('success', 'Expense Sukses Diupdate !');
     }

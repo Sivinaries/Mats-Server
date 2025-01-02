@@ -113,10 +113,33 @@ class ApiController extends Controller
 
         $settlement = $user->settlements()->create($data);
 
-        Cache::put('settlements', Settlement::all(), now()->addMinutes(60));
+        Cache::forget('settlements');
 
         return response()->json([
             'settlement' => $settlement
+        ], 200);
+    }
+    
+    public function posttotal(Request $request)
+    {
+        $data = $request->validate([
+            'total_amount' => 'nullable|numeric',
+        ]);
+
+        $user = auth()->user();
+        $latestSettlement = $user->settlements()->latest()->first();
+
+        if (!$latestSettlement) {
+            return redirect(route('settlement'))->with('error', 'No active shift found to end.');
+        }
+
+        $data['end_time'] = Carbon::now()->toDateTimeString();
+        $latestSettlement->update($data);
+
+        Cache::forget('settlements');
+
+        return response()->json([
+            'latestSettlement' => $latestSettlement
         ], 200);
     }
 
@@ -275,7 +298,7 @@ class ApiController extends Controller
 
     public function showorder($id)
     {
-        $order = Order::with('cart')->find($id);
+        $order = Order::with('cart.cartMenus.menu', 'cart.cartMenus.size')->find($id);
 
         return response()->json([
             'order' => $order,
@@ -366,7 +389,7 @@ class ApiController extends Controller
             $order->cart()->delete();
             $order->delete();
 
-            Cache::put('sizes', Size::all(), now()->addMinutes(60));
+            Cache::forget('sizes');
         });
 
         return response()->json([

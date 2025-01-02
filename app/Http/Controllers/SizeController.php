@@ -35,7 +35,7 @@ class SizeController extends Controller
 
         Size::create($data);
 
-        Cache::put('sizes', Size::all(), now()->addMinutes(60));
+        Cache::forget('sizes');
 
         return redirect(route('size'))->with('success', 'Size Sukses Dibuat !');
     }
@@ -61,7 +61,7 @@ class SizeController extends Controller
 
         Size::where('id', $id)->update($data);
 
-        Cache::put('sizes', Size::all(), now()->addMinutes(60));
+        Cache::forget('sizes');
 
         return redirect(route('size'))->with('success', 'Size Sukses Diupdate !');
     }

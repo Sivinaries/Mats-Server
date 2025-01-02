@@ -34,7 +34,7 @@
                             <div class='w-full'>
                                 <div class='p-2 rounded-xl relative bg-black space-y-2'>
                                     <div class='space-y-2'>
-                                        <div class='bg-gray-100 p-2 rounded-xl '>
+                                        <div class='bg-gray-100 p-2 rounded-xl h-20'>
                                             <img src="{{ asset('storage/img/' . basename($menu->img)) }}"
                                                 alt="Product Image"
                                                 class='mx-auto my-auto w-14 h-17 rounded-xl relative' />
